@@ -14,25 +14,20 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        // Open file
-        // Create nodes and arcs then from each entry then load into graph
-        Graph g1 = new Graph();
-        g1.addArc(new Arc("source", "1", 16));
-        g1.addArc(new Arc("source", "2", 13));
-        g1.addArc(new Arc("1", "2", 10));
-        //g1.addArc(new Arc("2", "1", 4));
-        g1.addArc(new Arc("1", "3", 12));
-        g1.addArc(new Arc("3", "2", 9));
-        g1.addArc(new Arc("2", "4", 14));
-        g1.addArc(new Arc("4", "3", 7));
-        g1.addArc(new Arc("3", "sink", 20));
-        g1.addArc(new Arc("4", "sink", 4));
-        System.out.println(g1);
+        Graph g = Graph.fromFile(args[0]);
+        Utils utils = new Utils(g);
 
-        // Run preflow
-        Utils utils1 = new Utils(g1);
-        utils1.preflow();
-        utils1.ford_fulkerson();
-
+        switch (args[1]) {
+            case "ford_fulkerson_bfs":
+                utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, true);
+                break;
+            case "ford_fulkerson_sp":
+                utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BELLMAN_FORD, true);
+                break;
+            case "preflow":
+                utils.minCut(MaxFlowAlgorithm.PREFLOW, true);
+                break;
+        }
     }
+
 }

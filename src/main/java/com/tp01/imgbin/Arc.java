@@ -19,6 +19,7 @@ public class Arc {
     private double capacity;
     private double flow;
     private double weight;
+    private String colour;
 
     public Arc(String u, String v, double capacity, double flow) {
         this.u = new Node(u);
@@ -26,14 +27,7 @@ public class Arc {
         this.capacity = capacity;
         this.flow = flow;
         this.weight = 0;
-    }
-
-    public Arc(String u, String v, double capacity, double flow, double weight) {
-        this.u = new Node(u);
-        this.v = new Node(v);
-        this.capacity = capacity;
-        this.flow = flow;
-        this.weight = weight;
+        this.colour = "black";
     }
 
     public Arc(String u, String v, double capacity) {
@@ -42,14 +36,25 @@ public class Arc {
         this.capacity = capacity;
         this.flow = 0;
         this.weight = 0;
+        this.colour = "black";
     }
-    
+
+    public Arc(String u, String v, double capacity, double flow, double weight) {
+        this.u = new Node(u);
+        this.v = new Node(v);
+        this.capacity = capacity;
+        this.flow = flow;
+        this.weight = weight;
+        this.colour = "black";
+    }
+
     public Arc(Node u, Node v, double capacity, double flow, double weight) {
         this.u = u;
         this.v = v;
         this.capacity = capacity;
         this.flow = flow;
         this.weight = weight;
+        this.colour = "black";
     }
 
     public double getCapacity() {
@@ -81,7 +86,7 @@ public class Arc {
     }
 
     public Arc getReverse() {
-        return new Arc(v, u, capacity, -flow, weight);
+        return new Arc(v, u, 0, -flow, -weight);
     }
 
     public double getWeight() {
@@ -94,6 +99,14 @@ public class Arc {
 
     public String getName() {
         return u + "-" + v;
+    }
+
+    public String getColour() {
+        return colour;
+    }
+
+    public void setColour(String colour) {
+        this.colour = colour;
     }
 
     @Override

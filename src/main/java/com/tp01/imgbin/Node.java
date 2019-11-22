@@ -14,9 +14,19 @@ import java.util.Objects;
 public class Node {
 
     private final String name;
+    private String colour;
 
     public Node(String name) {
         this.name = name;
+        this.colour = "lightgrey";
+    }
+
+    public String getColour() {
+        return colour;
+    }
+
+    public void setColour(String colour) {
+        this.colour = colour;
     }
 
     public String getName() {
