@@ -16,39 +16,12 @@ public class Arc {
     private final Node u;
     private final Node v;
 
-    private double capacity;
-    private double flow;
-    private double weight;
+    private int capacity;
+    private int flow;
+    private int weight;
     private String colour;
 
-    public Arc(String u, String v, double capacity, double flow) {
-        this.u = new Node(u);
-        this.v = new Node(v);
-        this.capacity = capacity;
-        this.flow = flow;
-        this.weight = 0;
-        this.colour = "black";
-    }
-
-    public Arc(String u, String v, double capacity) {
-        this.u = new Node(u);
-        this.v = new Node(v);
-        this.capacity = capacity;
-        this.flow = 0;
-        this.weight = 0;
-        this.colour = "black";
-    }
-
-    public Arc(String u, String v, double capacity, double flow, double weight) {
-        this.u = new Node(u);
-        this.v = new Node(v);
-        this.capacity = capacity;
-        this.flow = flow;
-        this.weight = weight;
-        this.colour = "black";
-    }
-
-    public Arc(Node u, Node v, double capacity, double flow, double weight) {
+    public Arc(Node u, Node v, int capacity, int flow, int weight) {
         this.u = u;
         this.v = v;
         this.capacity = capacity;
@@ -57,23 +30,23 @@ public class Arc {
         this.colour = "black";
     }
 
-    public double getCapacity() {
+    public int getCapacity() {
         return capacity;
     }
 
-    public double getRemaining() {
+    public int getRemaining() {
         return capacity - flow;
     }
 
-    public void setCapacity(double capacity) {
+    public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
-    public double getFlow() {
+    public int getFlow() {
         return flow;
     }
 
-    public void setFlow(double flow) {
+    public void setFlow(int flow) {
         this.flow = flow;
     }
 
@@ -89,11 +62,11 @@ public class Arc {
         return new Arc(v, u, 0, -flow, -weight);
     }
 
-    public double getWeight() {
+    public int getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(int weight) {
         this.weight = weight;
     }
 

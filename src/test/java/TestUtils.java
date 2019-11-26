@@ -18,23 +18,42 @@ import org.junit.Test;
 public class TestUtils {
 
     @Test
-    public void testMinCut() throws IOException {
+    public void testMinCut1() throws IOException {
 
-        Graph g1 = new Graph();
-        g1.addArc("source", "1", 16);
-        g1.addArc("source", "2", 13);
-        g1.addArc("1", "2", 10);
-        g1.addArc("2", "1", 4);
-        g1.addArc("1", "3", 12);
-        g1.addArc("3", "2", 9);
-        g1.addArc("2", "4", 14);
-        g1.addArc("4", "3", 7);
-        g1.addArc("3", "sink", 20);
-        g1.addArc("4", "sink", 4);
-        System.out.println(g1);
+        Graph g = new Graph("test1");
+        g.addArc("source", "1", 16);
+        g.addArc("source", "2", 13);
+        g.addArc("1", "2", 10);
+        g.addArc("2", "1", 4);
+        g.addArc("1", "3", 12);
+        g.addArc("3", "2", 9);
+        g.addArc("2", "4", 14);
+        g.addArc("4", "3", 7);
+        g.addArc("3", "sink", 20);
+        g.addArc("4", "sink", 4);
+        System.out.println(g);
 
         // Run preflow
-        Utils utils = new Utils(g1);
-        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, false), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false));
+        Utils utils = new Utils(g);
+        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, true), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, true));
+    }
+
+    @Test
+    /**
+     * https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem#Example
+     */
+    public void testMinCut2() throws IOException {
+
+        Graph g = new Graph("test2");
+        g.addArc("source", "1", 4);
+        g.addArc("source", "2", 4);
+        g.addArc("1", "2", 3);
+        g.addArc("1", "sink", 4);
+        g.addArc("2", "sink", 5);
+        System.out.println(g);
+
+        // Run preflow
+        Utils utils = new Utils(g);
+        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, true), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, true));
     }
 }

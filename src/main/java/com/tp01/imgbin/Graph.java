@@ -26,14 +26,38 @@ import java.util.StringTokenizer;
  */
 public class Graph {
 
+    /**
+     * Graph name
+     */
+    private final String name;
+
+    /**
+     * List of nodes
+     */
     private final HashMap<String, Node> S;
+    
+    /**
+     * List of arcs
+     */
     private final HashMap<String, Arc> A;
+    
+    /**
+     * List of reversed arcs in A for residual graph
+     */
     private final HashMap<String, Arc> rA;
 
-    private HashMap<Integer, LinkedList<Node>> ranks;
-    private HashMap<Node, Integer> groups;
+    /**
+     * GraphViz layout
+     */
+    private final HashMap<Integer, LinkedList<Node>> ranks;
+    private final HashMap<Node, Integer> groups;
 
-    public Graph() {
+    /**
+     * Constructor
+     * @param name graph name
+     */
+    public Graph(String name) {
+        this.name = name;
         this.A = new HashMap<>();
         this.S = new HashMap<>();
         this.rA = new HashMap<>();
@@ -41,40 +65,78 @@ public class Graph {
         this.ranks = new HashMap<>();
     }
 
-    public void addNode(Node n) {
+    public String getName() {
+        return name;
+    }
+
+    private void addNode(Node n) {
         this.S.put(n.getName(), n);
     }
 
-    public void addArc(String u, String v, double capacity) {
-        Arc a = new Arc(u, v, capacity);
-        Arc reverse = a.getReverse();
+    /**
+     * Add an arc from node u to v. The nodes will be created if they are not in S
+     * @param u u node name
+     * @param v v node name
+     * @param capacity arc capacity
+     */
+    public void addArc(String u, String v, int capacity) {
+
+        Node from = this.getNode(u) != null ? this.getNode(u) : new Node(u);
+        Node to = this.getNode(v) != null ? this.getNode(v) : new Node(v);
+
+        Arc a = new Arc(from, to, capacity, 0, 0);
 
         this.A.put(a.getName(), a);
-        this.rA.put(reverse.getName(), reverse);
 
-        this.addNode(a.getU());
-        this.addNode(a.getV());
-    }
-
-    public void addArc(String u, String v, double capacity, double flow) {
-        Arc a = new Arc(u, v, capacity, flow);
         Arc reverse = a.getReverse();
-
-        this.A.put(a.getName(), a);
         this.rA.put(reverse.getName(), reverse);
 
-        this.addNode(a.getU());
-        this.addNode(a.getV());
+        this.addNode(from);
+        this.addNode(to);
     }
 
+    /**
+     * Add an arc from node u to v. The nodes will be created if they are not in S
+     * @param u u node name
+     * @param v v node name
+     * @param capacity arc capacity
+     * @param flow arc flow
+     */
+    public void addArc(String u, String v, int capacity, int flow) {
+        Node from = this.getNode(u) != null ? this.getNode(u) : new Node(u);
+        Node to = this.getNode(v) != null ? this.getNode(v) : new Node(v);
+
+        Arc a = new Arc(from, to, capacity, flow, 0);
+        this.A.put(a.getName(), a);
+
+        Arc reverse = a.getReverse();
+        this.rA.put(reverse.getName(), reverse);
+
+        this.addNode(from);
+        this.addNode(to);
+    }
+
+    /**
+     * Retrieve node by name
+     * @param name node name
+     * @return 
+     */
     public Node getNode(String name) {
         return this.S.get(name);
     }
 
+    /**
+     * Retrieve all nodes in S
+     * @return 
+     */
     public Collection<Node> getNodes() {
         return S.values();
     }
 
+    /**
+     * Retrieve all nodes in residual graph (A + rA)
+     * @return 
+     */
     public Collection<Arc> getArcs() {
         HashSet<Arc> res = new HashSet<>();
         res.addAll(A.values());
@@ -82,14 +144,31 @@ public class Graph {
         return res;
     }
 
+    /**
+     * Retrieve an arc in residual graph
+     * @param u from node
+     * @param v to node
+     * @return 
+     */
     public Arc getArc(Node u, Node v) {
         Arc res = this.A.get(u + "-" + v);
-        if (res == null) {
-            return rA.get(u + "-" + v);
-        }
-        return res;
+        return (res != null) ? res : this.rA.get(u + "-" + v);
     }
 
+    /**
+     * Retrieve the reversed arc in the residual graph
+     * @param a an arc
+     * @return 
+     */
+    public Arc getReversedArc(Arc a) {
+        return this.getArc(a.getV(), a.getU());
+    }
+
+    /**
+     * Get children nodes of a node
+     * @param n a parent node
+     * @return 
+     */
     public Collection<Node> Adj(Node n) {
         List<Node> res = new ArrayList<>();
 
@@ -118,7 +197,7 @@ public class Graph {
      */
     public void toDot(String fileName, boolean withReverse) throws IOException {
         String dir = ".";
-        String dotFile = dir + "/graphviz/" + fileName + ".dot";
+        String dotFile = dir + "/graphviz/" + this.name + "_" + fileName + ".dot";
         //System.out.println(dir);
 
         /* Initialisation */
@@ -136,16 +215,16 @@ public class Graph {
 
             /* Ecrire les noeuds */
             for (Node n : this.getNodes()) {
-                fw.write("\t\"" + n + "\" [ style=\"filled, dashed\", fillcolor=\"" + n.getColour() + "\" ];\r\n");
+                fw.write("\t\"" + n + "\" [ style=\"filled\", fillcolor=\"" + n.getColour() + "\" ];\r\n");
             }
 
             /* Ecrire les arc */
             for (Arc a : this.A.values()) {
                 String u = a.getU().getName();
                 String v = a.getV().getName();
-                double f = a.getFlow();
-                double c = a.getCapacity();
-                double w = a.getWeight();
+                int f = a.getFlow();
+                int c = a.getCapacity();
+                int w = a.getWeight();
 
                 fw.write("\t\"" + u + "\" -> \"" + v + "\" [ label=\"" + f + "/" + c + "/" + w + "\", color=\"" + a.getColour() + "\" ];\r\n");
             }
@@ -155,9 +234,9 @@ public class Graph {
                 for (Arc a : this.rA.values()) {
                     String u = a.getU().getName();
                     String v = a.getV().getName();
-                    double f = a.getFlow();
-                    double c = a.getCapacity();
-                    double w = a.getWeight();
+                    int f = a.getFlow();
+                    int c = a.getCapacity();
+                    int w = a.getWeight();
 
                     fw.write("\t\"" + u + "\" -> \"" + v + "\" [style = dashed, label=\"" + f + "/" + c + "/" + w + "\" ];\r\n");
                 }
@@ -196,10 +275,10 @@ public class Graph {
         /*to dot first*/
         String dir = ".";
         toDot(fileName, withReverse);
-        String pngFile = dir + "/graphviz/" + fileName + ".png";
+        String pngFile = dir + "/graphviz/" + this.name + "_" + fileName + ".png";
 
         Process p;
-        p = new ProcessBuilder("dot", "-Tpng", dir + "/graphviz/" + fileName + ".dot", "-o", pngFile).start();
+        p = new ProcessBuilder("dot", "-Tpng", dir + "/graphviz/" + this.name + "_" + fileName + ".dot", "-o", pngFile).start();
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
@@ -236,7 +315,7 @@ public class Graph {
         BufferedReader br = new BufferedReader(new FileReader(fileName));
         String ln;
         int itr = 0;
-        Graph g = new Graph();
+        Graph g = new Graph("file");
 
         int m = 0, n = 0;
         int i = 0, j = 0;
@@ -262,7 +341,7 @@ public class Graph {
                 // a_ij    
                 case 1:
                     while (st.hasMoreTokens()) {
-                        g.addArc("source", i + "," + j, Double.parseDouble(st.nextToken()));
+                        g.addArc("source", i + "," + j, Integer.parseInt(st.nextToken()));
                         j++;
                     }
                     j = 0;
@@ -276,7 +355,7 @@ public class Graph {
                 // b_ij    
                 case 2:
                     while (st.hasMoreTokens()) {
-                        g.addArc(i + "," + j, "sink", Double.parseDouble(st.nextToken()));
+                        g.addArc(i + "," + j, "sink", Integer.parseInt(st.nextToken()));
                         j++;
                     }
                     j = 0;
@@ -292,7 +371,10 @@ public class Graph {
                     while (st.hasMoreTokens()) {
                         k = i;
                         l = j + 1;
-                        g.addArc(i + "," + j, k + "," + l, Double.parseDouble(st.nextToken()));
+                        int capacity = Integer.parseInt(st.nextToken());
+                        if (capacity > 0) {
+                            g.addArc(i + "," + j, k + "," + l, capacity);
+                        }
                         j++;
                     }
                     j = 0;
@@ -303,12 +385,15 @@ public class Graph {
                     }
                     continue;
 
-                // p_ijkl en ligne
+                // p_ijkl en colonne
                 case 4:
                     while (st.hasMoreTokens()) {
                         k = i + 1;
                         l = j;
-                        g.addArc(i + "," + j, k + "," + l, Double.parseDouble(st.nextToken()));
+                        int capacity = Integer.parseInt(st.nextToken());
+                        if (capacity > 0) {
+                            g.addArc(i + "," + j, k + "," + l, capacity);
+                        }
                         j++;
                     }
                     j = 0;

@@ -18,55 +18,29 @@ import java.util.Stack;
  * @author minhhoangdang
  */
 public class Utils {
-
+    
     private final Graph g;
-
+    
     public Utils(Graph g) {
         this.g = g;
     }
-
+    
     /**
-     * DFS
-     *
-     * @param subgraph
+     * Find an available path from start to end. A path is possible when the residual capacity along that path is available
      * @param start
+     * @return 
      */
-    private HashMap<Node, Boolean> visite_dfs(Node start) {
-
-        HashMap<Node, Boolean> visited = new HashMap<>();
-        for (Node n : g.getNodes()) {
-            visited.put(n, false);
-        }
-
-        Stack<Node> S = new Stack<>();
-        S.push(start);
-
-        while (!S.isEmpty()) {
-            Node v = S.pop();
-            if (!visited.get(v)) {
-                visited.put(v, Boolean.TRUE);
-                for (Node w : g.Adj(v)) {
-                    if (g.getArc(v, w).getRemaining() > 0 && !visited.get(w)) {
-                        S.push(w);
-                    }
-                }
-            }
-        }
-
-        return visited;
-    }
-
-    private LinkedList<Arc> pth_bfs(Node start) {
+    private LinkedList<Arc> pth_bfs(Node start, Node end) {
         LinkedList<Node> Q = new LinkedList<>();
         HashMap<Node, Node> parent = new HashMap<>();
         HashMap<Node, Boolean> visited = new HashMap<>();
         for (Node n : g.getNodes()) {
             visited.put(n, false);
         }
-
+        
         visited.put(start, Boolean.TRUE);
         Q.add(start);
-
+        
         while (!Q.isEmpty()) {
             Node v = Q.poll();
             for (Node w : g.Adj(v)) {
@@ -77,99 +51,105 @@ public class Utils {
                 }
             }
         }
-
+        
         LinkedList<Arc> path = new LinkedList<>();
-
-        Node v = g.getNode("sink");
+        
+        Node v = end;
         while (v != null && !v.equals(g.getNode("source"))) {
             Node u = parent.get(v);
             path.addFirst(g.getArc(u, v));
             v = u;
         }
-
+        
         return v == null ? null : path;
-
+        
+    }
+    
+    /**
+     * Push a certain amount down an arc and update the the reversed arc in residual graph
+     * @param a
+     * @param flow 
+     */
+    private void updateFlow(Arc a, int flow) {
+        a.setFlow(flow);
+        
+        Arc r = g.getReversedArc(a);
+        if (r != null) {
+            r.setFlow(-a.getFlow());
+        }
     }
 
     /**
-     *
+     * Preflow-init
      */
-    private void init(HashMap<Node, Double> height, HashMap<Node, Double> exceedence) {
+    private void init(HashMap<Node, Integer> height, HashMap<Node, Integer> exceedence) {
         Node source = g.getNode("source");
         // Set height and execcedence to 0
         for (Node s : g.getNodes()) {
-            height.put(s, 0.);
-            exceedence.put(s, 0.);
+            height.put(s, 0);
+            exceedence.put(s, 0);
         }
 
         // Set height for source
-        height.put(source, (double) g.getNodes().size());
+        height.put(source, (int) g.getNodes().size());
 
         // set flow for each arc
         for (Arc a : g.getArcs()) {
-            a.setFlow(0);
-            g.getArc(a.getV(), a.getU()).setFlow(0);
+            updateFlow(a, 0);
             a.setColour("black");
         }
 
         // set flow and exceedence for each adjacent of source
         for (Node v : g.Adj(source)) {
             Arc uv = g.getArc(source, v);
-            Arc vu = g.getArc(v, source);
-
-            uv.setFlow(uv.getCapacity());
-            vu.setFlow(-uv.getFlow());
-
+            updateFlow(uv, uv.getCapacity());
+            
             exceedence.put(v, uv.getCapacity());
             exceedence.put(source, exceedence.get(source) - uv.getCapacity());
         }
     }
 
     /**
-     * Push
-     *
-     * @param u
-     * @param v
-     * @return
+     * preflow push
+     * @param u node from
+     * @param v node to
+     * @param exceedence 
      */
-    private void avancer(Node u, Node v, HashMap<Node, Double> exceedence) {
+    private void avancer(Node u, Node v, HashMap<Node, Integer> exceedence) {
         Arc uv = g.getArc(u, v);
-
-        double df = Double.min(exceedence.get(u), uv.getRemaining());
-
-        uv.setFlow(uv.getFlow() + df);
-        g.getArc(v, u).setFlow(-uv.getFlow());
-
+        
+        int df = Integer.min(exceedence.get(u), uv.getRemaining());
+        
+        updateFlow(uv, uv.getFlow() + df);
+        
         exceedence.put(u, exceedence.get(u) - df);
         exceedence.put(v, exceedence.get(v) + df);
     }
 
     /**
-     * Relabel
-     *
+     * preflow - Relabel
      * @param u
      * @return
      */
-    private void elever(Node u, HashMap<Node, Double> height) {
-        double minHeight = Double.MAX_VALUE;
+    private void elever(Node u, HashMap<Node, Integer> height) {
+        int minHeight = Integer.MAX_VALUE;
         for (Node v : g.Adj(u)) {
             if (g.getArc(u, v).getRemaining() > 0) {
-                minHeight = Double.min(minHeight, height.get(v));
+                minHeight = Integer.min(minHeight, height.get(v));
                 height.put(u, minHeight + 1);
             }
         }
-
+        
     }
 
     /**
-     * Apply push or relabel when possible
-     *
+     * Apply push or relabel when possible.
      * @param u
      * @param Q
      * @param height
      * @param exceedence
      */
-    private void discharge(Node u, Queue<Node> Q, HashMap<Node, Double> height, HashMap<Node, Double> exceedence) {
+    private void discharge(Node u, Queue<Node> Q, HashMap<Node, Integer> height, HashMap<Node, Integer> exceedence) {
         while (exceedence.get(u) > 0) {
             for (Node v : g.Adj(u)) {
                 Arc a = g.getArc(u, v);
@@ -187,36 +167,37 @@ public class Utils {
                 elever(u, height);
             }
         }
-
+        
     }
 
     /**
      * Push-relabel algorithm
      *
+     * @param withReport
      * @throws java.io.IOException
      */
     public void preflow(boolean withReport) throws IOException {
-        double maxFlow = 0.;
+        int maxFlow = 0;
         int itr = 0;
-
-        HashMap<Node, Double> height = new HashMap<>();
-        HashMap<Node, Double> exceedence = new HashMap<>();
-
+        
+        HashMap<Node, Integer> height = new HashMap<>();
+        HashMap<Node, Integer> exceedence = new HashMap<>();
+        
         init(height, exceedence);
-
+        
         if (withReport) {
             g.toPng("preflow-" + itr, false);
         }
-
+        
         Node source = g.getNode("source");
         LinkedList<Node> Q = new LinkedList<>();
         Q.addAll(g.Adj(source));
-
+        
         while (!Q.isEmpty()) {
             itr++;
             Node u = Q.pop();
             discharge(u, Q, height, exceedence);
-
+            
             if (withReport) {
                 g.toPng("preflow-" + itr, false);
             }
@@ -226,43 +207,49 @@ public class Utils {
         for (Node n : g.Adj(source)) {
             maxFlow += g.getArc(source, n).getFlow();
         }
-
+        
         System.out.println("Max-flow is: " + maxFlow);
     }
-
+    
+    /**
+     * Max-flow using ford_fulkerson algorithm
+     * @param method pathfinding option
+     * @param withReport draw graphviz report for each iteration
+     * @throws IOException 
+     */
     public void ford_fulkerson(PathFindingAlgorithm method, boolean withReport) throws IOException {
         // init
-        double maxFlow = 0;
+        int maxFlow = 0;
         int itr = 0;
-
+        
         for (Arc a : g.getArcs()) {
             a.setFlow(0);
             a.setColour("black");
         }
-
+        
         if (withReport) {
-            g.toPng("preflow-" + itr, false);
+            g.toPng("ford-fulkerson-" + itr, false);
         }
-
+        
         Node source = g.getNode("source");
-
+        
         Collection<Arc> p;
         while ((p = pth_findPath(method)) != null) {
             itr++;
-
-            double cf = Double.MAX_VALUE;
+            
+            int cf = Integer.MAX_VALUE;
             for (Arc a : p) {
-                cf = Double.min(cf, a.getRemaining());
+                cf = Integer.min(cf, a.getRemaining());
             }
-
+            
             for (Arc a : p) {
                 a.setColour("green");
                 a.getU().setColour("green");
                 a.getV().setColour("green");
-                a.setFlow(a.getFlow() + cf);
-                g.getArc(a.getV(), a.getU()).setFlow(-a.getFlow());
+                
+                updateFlow(a, a.getFlow() + cf);
             }
-
+            
             if (withReport) {
                 g.toPng("ford-fulkerson" + itr, false);
             }
@@ -272,43 +259,47 @@ public class Utils {
         for (Node n : g.Adj(source)) {
             maxFlow += g.getArc(source, n).getFlow();
         }
-
+        
         System.out.println("Max-flow is: " + maxFlow);
-
+        
     }
-
+    
+    /**
+     * Apply a pathfinding algorithm
+     * @param method
+     * @return 
+     */
     private LinkedList<Arc> pth_findPath(PathFindingAlgorithm method) {
         switch (method) {
             case BELLMAN_FORD:
                 return pth_bellman_ford(g.getNode("source"), g.getNode("sink"));
             case BFS:
             default:
-                return pth_bfs(g.getNode("source"));
+                return pth_bfs(g.getNode("source"), g.getNode("sink"));
         }
     }
 
     /**
      * Shortest path using bellman_ford
-     *
      * @param src
      * @param dest
      * @return
      */
     private LinkedList<Arc> pth_bellman_ford(Node src, Node dest) {
         // init
-        HashMap<Node, Double> dist = new HashMap<>();
+        HashMap<Node, Integer> dist = new HashMap<>();
         HashMap<Node, Node> parent = new HashMap<>();
-
+        
         for (Node n : g.getNodes()) {
-            dist.put(n, Double.MAX_VALUE);
+            dist.put(n, Integer.MAX_VALUE);
         }
-        dist.put(src, 0.);
+        dist.put(src, 0);
 
         // relax 
         for (int i = 0; i < g.getArcs().size() - 1; i++) {
             for (Arc a : g.getArcs()) {
-
-                if (dist.get(a.getU()) != Double.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
+                
+                if (dist.get(a.getU()) != Integer.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
                     dist.put(a.getV(), dist.get(a.getU()) + a.getWeight());
                     parent.put(a.getV(), a.getU());
                 }
@@ -317,7 +308,7 @@ public class Utils {
 
         // cycle
         for (Arc a : g.getArcs()) {
-            if (dist.get(a.getU()) != Double.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
+            if (dist.get(a.getU()) != Integer.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
                 // negative weight cycle
                 //cycle.add(a);
                 return null;
@@ -330,19 +321,49 @@ public class Utils {
         while ((current = pred) != null && (pred = parent.get(current)) != null) {
             p.addFirst(g.getArc(pred, current));
         }
-
+        
         return p;
     }
 
     /**
-     *
+     * DFS. Mark arcs that are not saturated
+     * @param subgraph
+     * @param start
+     */
+    private HashMap<Node, Boolean> visite_dfs(Node start) {
+        
+        HashMap<Node, Boolean> visited = new HashMap<>();
+        for (Node n : g.getNodes()) {
+            visited.put(n, false);
+        }
+        
+        Stack<Node> S = new Stack<>();
+        S.push(start);
+        
+        while (!S.isEmpty()) {
+            Node v = S.pop();
+            if (!visited.get(v)) {
+                visited.put(v, Boolean.TRUE);
+                for (Node w : g.Adj(v)) {
+                    if (g.getArc(v, w).getRemaining() > 0 && !visited.get(w)) {
+                        S.push(w);
+                    }
+                }
+            }
+        }
+        
+        return visited;
+    }
+
+    /**
+     * Find the minimum cut
      * @param method
      * @param withReport
      * @return
      * @throws IOException
      */
     public HashSet<Arc> minCut(MaxFlowAlgorithm method, boolean withReport) throws IOException {
-
+        
         switch (method) {
             case FORD_FULKERSON_BELLMAN_FORD:
                 this.ford_fulkerson(PathFindingAlgorithm.BELLMAN_FORD, withReport);
@@ -358,24 +379,50 @@ public class Utils {
 
         // Min-Cut
         System.out.println("Min-cut is: ");
-
+        
         HashSet<Arc> cuts = new HashSet<>();
-
-        HashMap<Node, Boolean> visited = visite_dfs(g.getNode("source"));
+        HashSet<Node> sSet = new HashSet();
+        HashSet<Node> tSet = new HashSet();
+        
+        String sSetClr = "orange";
+        String tSetClr = "lightblue";
+        
+        Node source = g.getNode("source");
+        sSet.add(source);
+        source.setColour(sSetClr);
+        
+        Node sink = g.getNode("sink");
+        tSet.add(sink);
+        sink.setColour(tSetClr);
+        
+        HashMap<Node, Boolean> visited = visite_dfs(source);
+        
         for (Arc a : g.getArcs()) {
-            if (a.getFlow() > 0 && visited.get(a.getU()) && !visited.get(a.getV())) {
+            Node u = a.getU();
+            Node v = a.getV();
+            if (a.getRemaining() == 0 && visited.get(u) && !visited.get(v)) {
                 a.setColour("red");
                 cuts.add(a);
+                
+                tSet.add(v);
+                g.getNode(v.getName()).setColour(tSetClr);
+                
+                sSet.add(u);
+                g.getNode(u.getName()).setColour(sSetClr);
+                
                 System.out.println(a);
             }
         }
-
+        
+        System.out.println("source-set: " + sSet);
+        System.out.println("sink-set: " + tSet);
+        
         if (withReport) {
             g.toPng("MinCut", false);
         }
-
+        
         return cuts;
-
+        
     }
-
+    
 }
