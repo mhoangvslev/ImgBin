@@ -35,7 +35,7 @@ public class TestUtils {
 
         // Run preflow
         Utils utils = new Utils(g);
-        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, true), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, true));
+        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, false), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false));
     }
 
     @Test
@@ -54,6 +54,6 @@ public class TestUtils {
 
         // Run preflow
         Utils utils = new Utils(g);
-        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, true), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, true));
+        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, false), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false));
     }
 }

@@ -118,7 +118,7 @@ public class Utils {
     private void avancer(Node u, Node v, HashMap<Node, Integer> exceedence) {
         Arc uv = g.getArc(u, v);
         
-        int df = Integer.min(exceedence.get(u), uv.getRemaining());
+        int df = Math.min(exceedence.get(u), uv.getRemaining());
         
         updateFlow(uv, uv.getFlow() + df);
         
@@ -135,7 +135,7 @@ public class Utils {
         int minHeight = Integer.MAX_VALUE;
         for (Node v : g.Adj(u)) {
             if (g.getArc(u, v).getRemaining() > 0) {
-                minHeight = Integer.min(minHeight, height.get(v));
+                minHeight = Math.min(minHeight, height.get(v));
                 height.put(u, minHeight + 1);
             }
         }
@@ -239,7 +239,7 @@ public class Utils {
             
             int cf = Integer.MAX_VALUE;
             for (Arc a : p) {
-                cf = Integer.min(cf, a.getRemaining());
+                cf = Math.min(cf, a.getRemaining());
             }
             
             for (Arc a : p) {
