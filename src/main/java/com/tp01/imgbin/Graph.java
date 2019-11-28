@@ -35,12 +35,12 @@ public class Graph {
      * List of nodes
      */
     private final HashMap<String, Node> S;
-    
+
     /**
      * List of arcs
      */
     private final HashMap<String, Arc> A;
-    
+
     /**
      * List of reversed arcs in A for residual graph
      */
@@ -54,6 +54,7 @@ public class Graph {
 
     /**
      * Constructor
+     *
      * @param name graph name
      */
     public Graph(String name) {
@@ -74,12 +75,15 @@ public class Graph {
     }
 
     /**
-     * Add an arc from node u to v. The nodes will be created if they are not in S
+     * Add an arc from node u to v.The nodes will be created if they are not in
+ S
+     *
      * @param u u node name
      * @param v v node name
      * @param capacity arc capacity
+     * @param isDoubleArc specify whether it is a parallel arc
      */
-    public void addArc(String u, String v, int capacity) {
+    public void addArc(String u, String v, int capacity, boolean isDoubleArc) {
 
         Node from = this.getNode(u) != null ? this.getNode(u) : new Node(u);
         Node to = this.getNode(v) != null ? this.getNode(v) : new Node(v);
@@ -88,29 +92,42 @@ public class Graph {
 
         this.A.put(a.getName(), a);
 
-        Arc reverse = a.getReverse();
-        this.rA.put(reverse.getName(), reverse);
+        if (isDoubleArc) {
+            Arc parallel = new Arc(to, from, capacity, 0, 0);
+            this.A.put(parallel.getName(), parallel);
+        } else {
+            Arc reverse = a.getReverse();
+            this.rA.put(reverse.getName(), reverse);
+        }
 
         this.addNode(from);
         this.addNode(to);
     }
 
     /**
-     * Add an arc from node u to v. The nodes will be created if they are not in S
+     * Add an arc from node u to v.The nodes will be created if they are not in
+ S
+     *
      * @param u u node name
      * @param v v node name
      * @param capacity arc capacity
      * @param flow arc flow
+     * @param isDoubleArc specify whether it is a parallel arc
      */
-    public void addArc(String u, String v, int capacity, int flow) {
+    public void addArc(String u, String v, int capacity, int flow, boolean isDoubleArc) {
         Node from = this.getNode(u) != null ? this.getNode(u) : new Node(u);
         Node to = this.getNode(v) != null ? this.getNode(v) : new Node(v);
 
         Arc a = new Arc(from, to, capacity, flow, 0);
         this.A.put(a.getName(), a);
 
-        Arc reverse = a.getReverse();
-        this.rA.put(reverse.getName(), reverse);
+        if (isDoubleArc) {
+            Arc parallel = new Arc(to, from, capacity, 0, 0);
+            this.A.put(parallel.getName(), parallel);
+        } else {
+            Arc reverse = a.getReverse();
+            this.rA.put(reverse.getName(), reverse);
+        }
 
         this.addNode(from);
         this.addNode(to);
@@ -118,8 +135,9 @@ public class Graph {
 
     /**
      * Retrieve node by name
+     *
      * @param name node name
-     * @return 
+     * @return
      */
     public Node getNode(String name) {
         return this.S.get(name);
@@ -127,7 +145,8 @@ public class Graph {
 
     /**
      * Retrieve all nodes in S
-     * @return 
+     *
+++++++++++++++     * @return
      */
     public Collection<Node> getNodes() {
         return S.values();
@@ -135,7 +154,7 @@ public class Graph {
 
     /**
      * Retrieve all nodes in residual graph (A + rA)
-     * @return 
+     * @return
      */
     public Collection<Arc> getArcs() {
         HashSet<Arc> res = new HashSet<>();
@@ -148,7 +167,7 @@ public class Graph {
      * Retrieve an arc in residual graph
      * @param u from node
      * @param v to node
-     * @return 
+     * @return
      */
     public Arc getArc(Node u, Node v) {
         Arc res = this.A.get(u + "-" + v);
@@ -157,8 +176,9 @@ public class Graph {
 
     /**
      * Retrieve the reversed arc in the residual graph
+     *
      * @param a an arc
-     * @return 
+     * @return
      */
     public Arc getReversedArc(Arc a) {
         return this.getArc(a.getV(), a.getU());
@@ -166,8 +186,9 @@ public class Graph {
 
     /**
      * Get children nodes of a node
+     *
      * @param n a parent node
-     * @return 
+     * @return
      */
     public Collection<Node> Adj(Node n) {
         List<Node> res = new ArrayList<>();
@@ -341,7 +362,7 @@ public class Graph {
                 // a_ij    
                 case 1:
                     while (st.hasMoreTokens()) {
-                        g.addArc("source", i + "," + j, Integer.parseInt(st.nextToken()));
+                        g.addArc("source", i + "," + j, Integer.parseInt(st.nextToken()), false);
                         j++;
                     }
                     j = 0;
@@ -355,7 +376,7 @@ public class Graph {
                 // b_ij    
                 case 2:
                     while (st.hasMoreTokens()) {
-                        g.addArc(i + "," + j, "sink", Integer.parseInt(st.nextToken()));
+                        g.addArc(i + "," + j, "sink", Integer.parseInt(st.nextToken()), false);
                         j++;
                     }
                     j = 0;
@@ -373,7 +394,7 @@ public class Graph {
                         l = j + 1;
                         int capacity = Integer.parseInt(st.nextToken());
                         if (capacity > 0) {
-                            g.addArc(i + "," + j, k + "," + l, capacity);
+                            g.addArc(i + "," + j, k + "," + l, capacity, true);
                         }
                         j++;
                     }
@@ -392,7 +413,7 @@ public class Graph {
                         l = j;
                         int capacity = Integer.parseInt(st.nextToken());
                         if (capacity > 0) {
-                            g.addArc(i + "," + j, k + "," + l, capacity);
+                            g.addArc(i + "," + j, k + "," + l, capacity, true);
                         }
                         j++;
                     }

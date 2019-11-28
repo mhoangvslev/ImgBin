@@ -22,4 +22,5 @@ Les représentations graphiques se trouvent dans le dossier ```graphviz``` aprè
 ## Exemples
 ```bash
 sh launch.sh examples/4x4.txt --method=preflow --withReport # Préflot, sans graphviz
+sh launch_univ.sh examples/4x4.txt --method=preflow --withReport # Sous le proxy de l'université nantes
 ```

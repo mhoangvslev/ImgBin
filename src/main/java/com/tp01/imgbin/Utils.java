@@ -381,8 +381,8 @@ public class Utils {
         System.out.println("Min-cut is: ");
         
         HashSet<Arc> cuts = new HashSet<>();
-        HashSet<Node> sSet = new HashSet();
-        HashSet<Node> tSet = new HashSet();
+        HashSet<Node> sSet = new HashSet<>();
+        HashSet<Node> tSet = new HashSet<>();
         
         String sSetClr = "orange";
         String tSetClr = "lightblue";

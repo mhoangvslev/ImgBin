@@ -15,11 +15,22 @@ public class Main {
 
     /**
      * Read a file with specific commands
+     *
      * @param args
      * @throws IOException
-     * @throws Exception 
+     * @throws Exception
      */
     public static void main(String[] args) throws IOException, Exception {
+
+        if (args == null || args.length == 0) {
+            System.out.println("sh launch.sh path/to/file.txt METHOD REPORT # Lancer minCut sur file.txt\n"
+                    + "    METHOD: --method=preflow|ford_fulkerson_bfs|ford_fulkerson_sp\n"
+                    + "    REPORT: --withReport|empty");
+
+            System.out.println("Ex: sh launch.sh examples/4x4.txt --method=preflow --withReport # Préflot, sans graphviz\n"
+                    + "sh launch_univ.sh examples/4x4.txt --method=preflow --withReport # Sous le proxy de l'université nantes");
+        }
+
         if (!args[0].endsWith(".txt")) {
             throw new Exception("Input file must be .txt file!");
         }
