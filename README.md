@@ -11,7 +11,7 @@ sudo apt install maven # ubuntu
 ```bash
 sh test.sh # Lancer l'algo minCut sur un petit graph
 sh launch.sh path/to/file.txt METHOD REPORT # Lancer minCut sur file.txt
-    METHOD: --method=preflow|ford_fulkerson_bfs|ford_fulkerson_sp
+    METHOD: --method=preflow|ford_fulkerson
     REPORT: --withReport|empty
 ```
 
@@ -24,3 +24,18 @@ Les représentations graphiques se trouvent dans le dossier ```graphviz``` aprè
 sh launch.sh examples/4x4.txt --method=preflow --withReport # Préflot, sans graphviz
 sh launch_univ.sh examples/4x4.txt --method=preflow --withReport # Sous le proxy de l'université nantes
 ```
+
+## Documentation
+[Java API](https://mhoangvslev.github.io/ImgBin/)
+
+## Illustration
+
+Les résultats pour les graphes de test sont sous ```gif/```
+
+### examples/4x4.txt
+#### Ford-Fulkerson
+![](gif/ford_fulkerson.gif)
+
+#### Push-Relabel
+![](gif/push_relabel.gif)
+

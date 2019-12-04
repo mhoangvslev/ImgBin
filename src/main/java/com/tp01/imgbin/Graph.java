@@ -343,6 +343,9 @@ public class Graph {
         int k = 0, l = 0;
 
         while ((ln = br.readLine()) != null) {
+            
+            ln = ln.trim();
+            
             if (ln.startsWith("#")) {
                 continue;
             }

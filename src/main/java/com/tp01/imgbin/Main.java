@@ -38,14 +38,11 @@ public class Main {
         Graph g = Graph.fromFile(args[0]);
         Utils utils = new Utils(g);
 
-        boolean withReport = args[2] != null && args[2].equals("--withReport");
+        boolean withReport = args.length == 3 && args[2] != null && args[2].equals("--withReport");
 
         switch (args[1]) {
-            case "--method=ford_fulkerson_bfs":
+            case "--method=ford_fulkerson":
                 utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, withReport);
-                break;
-            case "--method=ford_fulkerson_sp":
-                utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BELLMAN_FORD, withReport);
                 break;
             case "--method=preflow":
                 utils.minCut(MaxFlowAlgorithm.PREFLOW, withReport);
