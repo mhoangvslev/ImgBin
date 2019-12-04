@@ -1,8 +1,10 @@
 
 import com.tp01.imgbin.Graph;
 import com.tp01.imgbin.MaxFlowAlgorithm;
+import com.tp01.imgbin.Node;
 import com.tp01.imgbin.Utils;
 import java.io.IOException;
+import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -35,7 +37,17 @@ public class TestUtils {
 
         // Run preflow
         Utils utils = new Utils(g);
-        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, false), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false));
+        utils.ResoudreBinIm(MaxFlowAlgorithm.PREFLOW, false);
+        HashSet<Node> sSet1 = utils.getsSet();
+        HashSet<Node> tSet1 = utils.gettSet();
+
+        utils.ResoudreBinIm(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false);
+        HashSet<Node> sSet2 = utils.getsSet();
+        HashSet<Node> tSet2 = utils.gettSet();
+
+        assertEquals(sSet1, sSet2);
+        assertEquals(tSet1, tSet2);
+
     }
 
     @Test
@@ -54,6 +66,15 @@ public class TestUtils {
 
         // Run preflow
         Utils utils = new Utils(g);
-        assertEquals(utils.minCut(MaxFlowAlgorithm.PREFLOW, false), utils.minCut(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false));
+        utils.ResoudreBinIm(MaxFlowAlgorithm.PREFLOW, false);
+        HashSet<Node> sSet1 = utils.getsSet();
+        HashSet<Node> tSet1 = utils.gettSet();
+
+        utils.ResoudreBinIm(MaxFlowAlgorithm.FORD_FULKERSON_BFS, false);
+        HashSet<Node> sSet2 = utils.getsSet();
+        HashSet<Node> tSet2 = utils.gettSet();
+
+        assertEquals(sSet1, sSet2);
+        assertEquals(tSet1, tSet2);
     }
 }

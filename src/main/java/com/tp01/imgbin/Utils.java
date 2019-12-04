@@ -20,6 +20,8 @@ import java.util.Stack;
 public class Utils {
 
     private final Graph g;
+    private HashSet<Node> tSet;
+    private HashSet<Node> sSet;
 
     public Utils(Graph g) {
         this.g = g;
@@ -374,16 +376,7 @@ public class Utils {
         return visited;
     }
 
-    /**
-     * Find the minimum cut
-     *
-     * @param method
-     * @param withReport
-     * @return
-     * @throws IOException
-     */
-    public HashSet<Arc> minCut(MaxFlowAlgorithm method, boolean withReport) throws IOException {
-
+    private void CalculFlotMax(MaxFlowAlgorithm method, boolean withReport) throws IOException {
         switch (method) {
             case FORD_FULKERSON_BELLMAN_FORD:
                 this.ford_fulkerson(PathFindingAlgorithm.BELLMAN_FORD, withReport);
@@ -396,13 +389,14 @@ public class Utils {
                 this.preflow(withReport);
                 break;
         }
+    }
 
-        // Min-Cut
+    private HashSet<Arc> CalculCoupeMin(boolean withReport) throws IOException {
         System.out.println("Min-cut is: ");
 
         HashSet<Arc> cuts = new HashSet<>();
-        HashSet<Node> sSet = new HashSet<>();
-        HashSet<Node> tSet = new HashSet<>();
+        sSet = new HashSet<>();
+        tSet = new HashSet<>();
 
         String sSetClr = "orange";
         String tSetClr = "lightblue";
@@ -442,6 +436,42 @@ public class Utils {
         }
 
         return cuts;
+    }
+
+    public HashSet<Node> gettSet() {
+        return tSet;
+    }
+
+    public HashSet<Node> getsSet() {
+        return sSet;
+    }
+
+     /**
+     * Find the minimum cut
+     *
+     * @param method
+     * @param withReport
+     * @throws IOException
+     */
+    public void ResoudreBinIm(MaxFlowAlgorithm method, boolean withReport) throws IOException {
+        // maxflow
+        CalculFlotMax(method, withReport);
+
+        // Min-Cut
+        CalculCoupeMin(withReport);
+
+        // Affichage
+        System.out.println("Final result: " + g.layout_getRanks());
+        for (int i : g.layout_getRanks()) {
+            for (Node n : g.layout_getNodesFromRank(i)) {
+                if (sSet.contains(n)) {
+                    System.out.print("A");
+                } else {
+                    System.out.print("B");
+                }
+            }
+            System.out.print("\n");
+        }
 
     }
 

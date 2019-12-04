@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -146,7 +147,7 @@ public class Graph {
     /**
      * Retrieve all nodes in S
      *
-++++++++++++++     * @return
+     * @return 
      */
     public Collection<Node> getNodes() {
         return S.values();
@@ -318,6 +319,18 @@ public class Graph {
 
         p.destroy();
     }
+    
+    //============================
+    // LAYOUT
+    //============================
+    
+    public Set<Integer> layout_getRanks(){
+        return this.ranks.keySet();
+    }
+    
+    public LinkedList<Node> layout_getNodesFromRank(int rank){
+        return this.ranks.get(rank);
+    }
 
     public void layout_sameRank(int rank, LinkedList<Node> nds) {
         this.ranks.put(rank, nds);
@@ -332,7 +345,7 @@ public class Graph {
         return "Graph{" + "S=" + S + ", A=" + A + '}';
     }
 
-    public static Graph fromFile(String fileName) throws FileNotFoundException, IOException {
+    public static Graph ConstructionReseau(String fileName) throws FileNotFoundException, IOException {
         BufferedReader br = new BufferedReader(new FileReader(fileName));
         String ln;
         int itr = 0;
