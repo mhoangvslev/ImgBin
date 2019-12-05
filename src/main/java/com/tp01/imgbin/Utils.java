@@ -128,8 +128,11 @@ public class Utils {
      * @param v node to
      * @param exceedence
      */
-    private void avancer(Node u, Node v, HashMap<Node, Integer> exceedence) {
+    private void push(Node u, Node v, HashMap<Node, Integer> exceedence) {
         Arc uv = g.getArc(u, v);
+        uv.setColour("green");
+        u.setColour("green");
+        v.setColour("green");
 
         int df = Math.min(exceedence.get(u), uv.getRemaining());
 
@@ -145,10 +148,12 @@ public class Utils {
      * @param u
      * @return
      */
-    private void elever(Node u, HashMap<Node, Integer> height) {
+    private void relabel(Node u, HashMap<Node, Integer> height) {
+        u.setColour("blue");
         int minHeight = Integer.MAX_VALUE;
         for (Node v : g.Adj(u)) {
             if (g.getArc(u, v).getRemaining() > 0) {
+                v.setColour("yellow");
                 minHeight = Math.min(minHeight, height.get(v));
                 height.put(u, minHeight + 1);
             }
@@ -168,18 +173,15 @@ public class Utils {
         while (exceedence.get(u) > 0) {
             for (Node v : g.Adj(u)) {
                 Arc a = g.getArc(u, v);
-                a.setColour("green");
-                a.getU().setColour("green");
-                a.getV().setColour("green");
                 if (a.getRemaining() > 0 && height.get(u) == height.get(v) + 1) {
-                    avancer(u, v, exceedence);
+                    push(u, v, exceedence);
                     if (!v.getName().equals("source") && !v.getName().equals("sink") && !Q.contains(v)) {
                         Q.add(v);
                     }
                 }
             }
             if (exceedence.get(u) > 0) {
-                elever(u, height);
+                relabel(u, height);
             }
         }
 
@@ -461,7 +463,7 @@ public class Utils {
         CalculCoupeMin(withReport);
 
         // Affichage
-        System.out.println("Final result: " + g.layout_getRanks());
+        System.out.println("Final result: ");
         for (int i : g.layout_getRanks()) {
             for (Node n : g.layout_getNodesFromRank(i)) {
                 if (sSet.contains(n)) {

@@ -31,10 +31,6 @@ public class Main {
                     + "sh launch_univ.sh examples/4x4.txt --method=preflow --withReport # Sous le proxy de l'université nantes");
         }
 
-        if (!args[0].endsWith(".txt")) {
-            throw new Exception("Input file must be .txt file!");
-        }
-
         Graph g = Graph.ConstructionReseau(args[0]);
         Utils utils = new Utils(g);
 
