@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.tp01.imgbin;
 
 /**
  *
  * @author minhhoangdang
  */
 public enum MaxFlowAlgorithm {
-    FORD_FULKERSON_BFS,
-    FORD_FULKERSON_BELLMAN_FORD,
+    FORD_FULKERSON,
     PREFLOW
 }

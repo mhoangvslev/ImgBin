@@ -3,8 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.tp01.imgbin;
-
 import java.io.IOException;
 
 /**
@@ -24,7 +22,7 @@ public class Main {
 
         if (args == null || args.length == 0) {
             System.out.println("sh launch.sh path/to/file.txt METHOD REPORT # Lancer minCut sur file.txt\n"
-                    + "    METHOD: --method=preflow|ford_fulkerson_bfs|ford_fulkerson_sp\n"
+                    + "    METHOD: --method=preflow|ford_fulkerson\n"
                     + "    REPORT: --withReport|empty");
 
             System.out.println("Ex: sh launch.sh examples/4x4.txt --method=preflow --withReport # Préflot, sans graphviz\n"
@@ -38,7 +36,7 @@ public class Main {
 
         switch (args[1]) {
             case "--method=ford_fulkerson":
-                utils.ResoudreBinIm(MaxFlowAlgorithm.FORD_FULKERSON_BFS, withReport);
+                utils.ResoudreBinIm(MaxFlowAlgorithm.FORD_FULKERSON, withReport);
                 break;
             case "--method=preflow":
                 utils.ResoudreBinIm(MaxFlowAlgorithm.PREFLOW, withReport);

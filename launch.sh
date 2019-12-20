@@ -1,5 +1,11 @@
-rm -rf graphviz
-mkdir graphviz
-mvn clean install
-mvn exec:java -Dexec.mainClass="com.tp01.imgbin.Main" -Dexec.args="$1 $2 $3" 
-rm -rf graphviz/*.dot
+# Compilation
+rm -rf bin/
+mkdir -p bin
+javac -source 1.7 -target 1.7 -d bin/ src/*.java
+cd bin/
+jar cfv ImgBin.jar *.class
+
+# Execution
+cd ../
+mkdir -p graphviz
+java -cp bin/ImgBin.jar Main $1 $2 $3

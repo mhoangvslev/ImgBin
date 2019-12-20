@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.tp01.imgbin;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -235,7 +234,7 @@ public class Utils {
      * @param withReport draw graphviz report for each iteration
      * @throws IOException
      */
-    public void ford_fulkerson(PathFindingAlgorithm method, boolean withReport) throws IOException {
+    public void ford_fulkerson(boolean withReport) throws IOException {
         // init
         int maxFlow = 0;
         int itr = 0;
@@ -255,7 +254,7 @@ public class Utils {
         Node source = g.getNode("source");
 
         Collection<Arc> p;
-        while ((p = pth_findPath(method)) != null) {
+        while ((p = pth_bfs(g.getNode("source"), g.getNode("sink"))) != null) {
             itr++;
 
             int cf = Integer.MAX_VALUE;
@@ -285,68 +284,6 @@ public class Utils {
 
     }
 
-    /**
-     * Apply a pathfinding algorithm
-     *
-     * @param method
-     * @return
-     */
-    private LinkedList<Arc> pth_findPath(PathFindingAlgorithm method) {
-        switch (method) {
-            /*case BELLMAN_FORD:
-                return pth_bellman_ford(g.getNode("source"), g.getNode("sink"));*/
-            case BFS:
-            default:
-                return pth_bfs(g.getNode("source"), g.getNode("sink"));
-        }
-    }
-
-    /**
-     * Shortest path using bellman_ford
-     *
-     * @param src
-     * @param dest
-     * @return
-     */
-    /*private LinkedList<Arc> pth_bellman_ford(Node src, Node dest) {
-        // init
-        HashMap<Node, Integer> dist = new HashMap<>();
-        HashMap<Node, Node> parent = new HashMap<>();
-        
-        for (Node n : g.getNodes()) {
-            dist.put(n, Integer.MAX_VALUE);
-        }
-        dist.put(src, 0);
-
-        // relax 
-        for (int i = 0; i < g.getArcs().size() - 1; i++) {
-            for (Arc a : g.getArcs()) {
-                
-                if (dist.get(a.getU()) != Integer.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
-                    dist.put(a.getV(), dist.get(a.getU()) + a.getWeight());
-                    parent.put(a.getV(), a.getU());
-                }
-            }
-        }
-
-        // cycle
-        for (Arc a : g.getArcs()) {
-            if (dist.get(a.getU()) != Integer.MAX_VALUE && dist.get(a.getU()) + a.getWeight() < dist.get(a.getV())) {
-                // negative weight cycle
-                //cycle.add(a);
-                return null;
-            }
-        }
-
-        // Shortest path src to dest
-        Node current, pred = dest;
-        LinkedList<Arc> p = new LinkedList<>();
-        while ((current = pred) != null && (pred = parent.get(current)) != null) {
-            p.addFirst(g.getArc(pred, current));
-        }
-        
-        return p;
-    }*/
     /**
      * DFS. Mark arcs that are not saturated
      *
@@ -380,15 +317,11 @@ public class Utils {
 
     private void CalculFlotMax(MaxFlowAlgorithm method, boolean withReport) throws IOException {
         switch (method) {
-            case FORD_FULKERSON_BELLMAN_FORD:
-                this.ford_fulkerson(PathFindingAlgorithm.BELLMAN_FORD, withReport);
-                break;
-            case FORD_FULKERSON_BFS:
-            default:
-                this.ford_fulkerson(PathFindingAlgorithm.BFS, withReport);
-                break;
             case PREFLOW:
                 this.preflow(withReport);
+                break;
+            default:
+                this.ford_fulkerson(withReport);
                 break;
         }
     }
